@@ -17,7 +17,9 @@
 */
 
 #include "Box2D/Collision/Shapes/b2PolygonShape.h"
+
 #include <new>
+#include <stdexcept>
 
 b2Shape* b2PolygonShape::Clone(b2BlockAllocator* allocator) const
 {
@@ -154,10 +156,7 @@ void b2PolygonShape::Set(const b2Vec2* vertices, int32 count)
 	n = tempCount;
 	if (n < 3)
 	{
-		// Polygon is degenerate.
-		b2Assert(false);
-		SetAsBox(1.0f, 1.0f);
-		return;
+        throw std::runtime_error("Polygon is degenerate");
 	}
 
 	// Create the convex hull using the Gift wrapping algorithm
@@ -182,6 +181,11 @@ void b2PolygonShape::Set(const b2Vec2* vertices, int32 count)
 
 	for (;;)
 	{
+        if (m > n)
+        {
+            throw std::runtime_error("Failed to generate convex hull");
+        }
+
 		b2Assert(m < b2_maxPolygonVertices);
 		hull[m] = ih;
 
@@ -220,11 +224,8 @@ void b2PolygonShape::Set(const b2Vec2* vertices, int32 count)
 	
 	if (m < 3)
 	{
-		// Polygon is degenerate.
-		b2Assert(false);
-		SetAsBox(1.0f, 1.0f);
-		return;
-	}
+        throw std::runtime_error("Polygon is degenerate");
+    }
 
 	m_count = m;
 
